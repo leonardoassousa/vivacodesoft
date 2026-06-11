@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Viva Code — Gestão</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#009894;--teal-dark:#0f6e56;--teal-light:#e1f5ee;
+  --purple:#5f39a3;--purple-light:#ede9fa;
+  --navy:#0a072c;--navy2:#12104a;
+  --blue:#446299;--blue-light:#e6f1fb;
+  --red:#e24b4a;--red-light:#fcebeb;
+  --amber:#854f0b;--amber-light:#faeeda;
+  --bg:#f5f5f7;--card:#fff;--border:#e8e8ec;
+  --text:#1a1a2e;--text2:#6b7280;--text3:#9ca3af;
+  --radius:14px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --shadow-md:0 4px 24px rgba(0,0,0,.10);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 40%,#1a0a3c 100%)}
+.login-wrap{display:flex;flex-direction:column;align-items:center;gap:28px;width:100%;max-width:380px;padding:24px}
+.login-brand{text-align:center}
+.login-brand .vv{font-size:48px;font-weight:700;letter-spacing:-2px;line-height:1}
+.login-brand .vv .t{color:var(--teal)}
+.login-brand .vv .p{color:var(--purple)}
+.login-brand .sub{font-family:monospace;font-size:14px;color:rgba(255,255,255,.4);margin-top:4px}
+.login-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:2rem;width:100%}
+.login-card h2{font-size:15px;font-weight:500;color:rgba(255,255,255,.7);text-align:center;margin-bottom:1.5rem}
+.lf-group{margin-bottom:14px}
+.lf-group label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.lf-group input{width:100%;padding:11px 14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:14px;color:#fff;outline:none;transition:border .2s}
+.lf-group input::placeholder{color:rgba(255,255,255,.25)}
+.lf-group input:focus{border-color:var(--teal)}
+.login-btn{width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;transition:background .2s,transform .1s}
+.login-btn:hover{background:var(--teal-dark)}
+.login-btn:active{transform:scale(.98)}
+.login-err{color:#fca5a5;font-size:12px;text-align:center;margin-top:10px;display:none}
+
+/* ── DASHBOARD ── */
+#dashboard{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:var(--navy);display:flex;flex-direction:column;z-index:100;padding:0}
+.sb-brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand .logo-big{font-size:22px;font-weight:700;letter-spacing:-1px}
+.sb-brand .logo-big .t{color:var(--teal)}
+.sb-brand .logo-big .p{color:var(--purple)}
+.sb-brand .logo-sub{font-family:monospace;font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.sb-nav{flex:1;padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.45);font-size:13px;font-weight:500;border:none;background:transparent;width:100%;text-align:left;transition:all .15s}
+.sb-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
+.sb-item.active{background:rgba(0,152,148,.15);color:var(--teal)}
+.sb-item .icon{font-size:17px;width:20px;text-align:center}
+.sb-footer{padding:16px 10px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--purple));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-uname{font-size:12px;font-weight:600;color:rgba(255,255,255,.7)}
+.sb-urole{font-size:11px;color:rgba(255,255,255,.3)}
+.sb-logout{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.3);font-size:12px;border:none;background:transparent;width:100%;margin-top:4px;transition:all .15s}
+.sb-logout:hover{color:#fca5a5;background:rgba(252,165,165,.08)}
+
+.main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{padding:18px 28px 0;display:flex;align-items:center;justify-content:space-between}
+.page-title{font-size:20px;font-weight:700;color:var(--text)}
+.page-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.content{padding:20px 28px 32px;flex:1}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:20px;box-shadow:var(--shadow)}
+.card-sm{padding:16px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.card-title .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+/* ── MÉTRICAS ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.metric::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent,var(--teal))}
+.metric-label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+.metric-value{font-size:20px;font-weight:700;color:var(--text)}
+.metric-value.teal{color:var(--teal)}
+.metric-value.red{color:var(--red)}
+.metric-value.purple{color:var(--purple)}
+.metric-value.blue{color:var(--blue)}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:var(--radius-sm)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;color:var(--text2);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);background:#fafafa}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafafa}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.bg-green{background:var(--teal-light);color:var(--teal-dark)}
+.bg-amber{background:var(--amber-light);color:var(--amber)}
+.bg-red{background:var(--red-light);color:var(--red)}
+.bg-blue{background:var(--blue-light);color:var(--blue)}
+.bg-purple{background:var(--purple-light);color:var(--purple)}
+
+/* ── FORMS ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:0}
+.fg label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.04em;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:#fff;color:var(--text);outline:none;transition:border .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--teal)}
+.fg textarea{resize:vertical;min-height:72px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:none}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:var(--teal-dark)}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}.btn-ghost:hover{background:var(--bg)}
+.btn-danger{background:transparent;color:var(--red);border:1.5px solid var(--border);padding:6px 10px;font-size:12px}.btn-danger:hover{background:var(--red-light);border-color:var(--red)}
+.btn-info{background:transparent;color:var(--blue);border:1.5px solid var(--border);padding:6px 10px;font-size:12px}.btn-info:hover{background:var(--blue-light)}
+
+/* ── FINANCEIRO ── */
+.fin-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.fin-item:last-child{border-bottom:none}
+.fin-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.fin-icon.e{background:var(--teal-light)}
+.fin-icon.s{background:var(--red-light)}
+.fin-info{flex:1;min-width:0}
+.fin-desc{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fin-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.fin-val{font-size:14px;font-weight:700;flex-shrink:0}
+.fin-val.entrada{color:var(--teal)}
+.fin-val.saida{color:var(--red)}
+
+/* ── BAR CHART ── */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-size:12px;color:var(--text2);width:28px;flex-shrink:0}
+.bar-track{flex:1;background:#f0f0f4;border-radius:4px;height:8px;overflow:hidden}
+.bar-fill{height:8px;border-radius:4px;transition:width .5s ease}
+.bf-teal{background:var(--teal)}
+.bf-purple{background:var(--purple)}
+
+/* ── CONTRATOS ── */
+.contract-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:12px}
+.contract-card:hover{border-color:#d0d0da}
+.cname{font-size:14px;font-weight:700}
+.cmeta{font-size:12px;color:var(--text2);margin-top:3px}
+.cserv{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--teal);background:var(--teal-light);padding:3px 10px;border-radius:20px;margin-top:8px}
+.cmsg{font-size:13px;color:var(--text2);margin-top:12px;padding-top:12px;border-top:1px solid var(--border);line-height:1.6;font-style:italic}
+.status-sel{font-size:12px;padding:5px 8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:#fff;color:var(--text);cursor:pointer;font-family:inherit;outline:none}
+.status-sel:focus{border-color:var(--teal)}
+
+.info-banner{background:linear-gradient(135deg,#e6f1fb,#ede9fa);border:1px solid #cdd9f0;border-radius:var(--radius);padding:14px 18px;font-size:13px;color:var(--blue);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.empty{text-align:center;padding:3rem;color:var(--text3);font-size:13px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+@media(max-width:900px){
+  .sidebar{width:64px}
+  .sb-item span,.sb-brand .logo-big,.sb-brand .logo-sub,.sb-uname,.sb-urole,.sb-logout span{display:none}
+  .main{margin-left:64px}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+  .form-row,.form-row-3{grid-template-columns:1fr}
+  .content{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="vv"><span class="t">VI</span><span class="p">VA</span></div>
+      <div class="sub">{code} · gestão</div>
+    </div>
+    <div class="login-card">
+      <h2>Acesso restrito</h2>
+      <div class="lf-group">
+        <label>Usuário</label>
+        <input id="l-user" type="text" placeholder="admin" autocomplete="username"/>
+      </div>
+      <div class="lf-group">
+        <label>Senha</label>
+        <input id="l-pass" type="password" placeholder="••••••" autocomplete="current-password"/>
+      </div>
+      <button class="login-btn" onclick="doLogin()">Entrar</button>
+      <div class="login-err" id="login-err">Usuário ou senha incorretos.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard">
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="logo-big"><span class="t">VI</span><span class="p">VA</span></div>
+      <div class="logo-sub">{code}</div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" onclick="showTab('overview',this)">
+        <span class="icon">⬡</span><span>Visão geral</span>
+      </button>
+      <button class="sb-item" onclick="showTab('finance',this)">
+        <span class="icon">◈</span><span>Financeiro</span>
+      </button>
+      <button class="sb-item" onclick="showTab('clients',this)">
+        <span class="icon">◉</span><span>Clientes</span>
+      </button>
+      <button class="sb-item" onclick="showTab('contracts',this)">
+        <span class="icon">◧</span><span>Contratos</span>
+      </button>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">A</div>
+        <div><div class="sb-uname">admin</div><div class="sb-urole">Administrador</div></div>
+      </div>
+      <button class="sb-logout" onclick="doLogout()">
+        <span style="font-size:15px">↩</span><span>Sair</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- VISÃO GERAL -->
+    <div id="tab-overview" class="tab-panel active">
+      <div class="topbar">
+        <div><div class="page-title">Visão geral</div><div class="page-sub">Resumo do negócio</div></div>
+      </div>
+      <div class="content">
+        <div class="metrics-grid" id="overview-metrics"></div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><span class="dot"></span>Receita vs Despesa</div>
+            <div id="monthly-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Contratos recentes</div>
+            <div id="recent-contracts"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCEIRO -->
+    <div id="tab-finance" class="tab-panel" style="display:none">
+      <div class="topbar">
+        <div><div class="page-title">Financeiro</div><div class="page-sub" id="fin-resumo-top"></div></div>
+      </div>
+      <div class="content">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span class="dot"></span>Nova movimentação</div>
+          <div class="form-row">
+            <div class="fg"><label>Tipo</label><select id="fin-tipo"><option value="entrada">↑ Entrada</option><option value="saida">↓ Saída</option></select></div>
+            <div class="fg"><label>Valor (R$)</label><input type="number" id="fin-valor" placeholder="0,00" min="0" step="0.01"/></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Descrição</label><input type="text" id="fin-desc" placeholder="Ex: Projeto X — Cliente Y"/></div>
+            <div class="fg"><label>Data</label><input type="date" id="fin-data"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:16px">
+            <label>Categoria</label>
+            <select id="fin-cat"><option value="projeto">Projeto</option><option value="manutencao">Manutenção</option><option value="infraestrutura">Infraestrutura</option><option value="marketing">Marketing</option><option value="pessoal">Pessoal</option><option value="outros">Outros</option></select>
+          </div>
+          <button class="btn btn-teal" onclick="addFinanca()">Registrar</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Histórico</div>
+          <div id="fin-lista"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div id="tab-clients" class="tab-panel" style="display:none">
+      <div class="topbar">
+        <div><div class="page-title">Clientes</div><div class="page-sub" id="cli-count-top"></div></div>
+      </div>
+      <div class="content">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><span class="dot"></span>Adicionar cliente</div>
+          <div class="form-row">
+            <div class="fg"><label>Nome completo</label><input type="text" id="cli-nome" placeholder="Nome"/></div>
+            <div class="fg"><label>Empresa</label><input type="text" id="cli-empresa" placeholder="Empresa"/></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>E-mail</label><input type="email" id="cli-email" placeholder="email@exemplo.com"/></div>
+            <div class="fg"><label>Telefone</label><input type="text" id="cli-tel" placeholder="(11) 99999-9999"/></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Status</label><select id="cli-status"><option value="ativo">Ativo</option><option value="prospect">Prospect</option><option value="inativo">Inativo</option></select></div>
+            <div class="fg"><label>Valor contrato (R$)</label><input type="number" id="cli-valor" placeholder="0,00" min="0" step="0.01"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:16px"><label>Observações</label><textarea id="cli-obs" placeholder="Informações adicionais..."></textarea></div>
+          <button class="btn btn-teal" onclick="addCliente()">Salvar cliente</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Lista de clientes</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Nome</th><th>Empresa</th><th>Contato</th><th>Status</th><th>Contrato</th><th></th></tr></thead>
+              <tbody id="cli-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRATOS -->
+    <div id="tab-contracts" class="tab-panel" style="display:none">
+      <div class="topbar">
+        <div><div class="page-title">Contratos</div><div class="page-sub">Solicitações recebidas pelo site</div></div>
+      </div>
+      <div class="content">
+        <div class="info-banner">
+          <span style="font-size:18px">📋</span>
+          Pedidos enviados pelo formulário do site público aparecem aqui automaticamente, em tempo real.
+        </div>
+        <div id="contracts-lista"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CRED={user:'admin',pass:'vivacode2025'};
+let state={
+  nextId:20,
+  financas:[
+    {id:1,tipo:'entrada',valor:4800,desc:'Site institucional — TechBR',data:'2025-06-01',cat:'projeto'},
+    {id:2,tipo:'entrada',valor:2200,desc:'Manutenção mensal — LogiSoft',data:'2025-06-03',cat:'manutencao'},
+    {id:3,tipo:'saida',valor:800,desc:'Servidor AWS — Junho',data:'2025-06-05',cat:'infraestrutura'},
+    {id:4,tipo:'saida',valor:350,desc:'Ferramentas e licenças',data:'2025-06-07',cat:'outros'},
+    {id:5,tipo:'entrada',valor:6500,desc:'App mobile fase 1 — NovaMed',data:'2025-05-20',cat:'projeto'},
+    {id:6,tipo:'saida',valor:1200,desc:'Freelancer design UX',data:'2025-05-22',cat:'pessoal'},
+    {id:7,tipo:'entrada',valor:3800,desc:'Sistema agendamento — ClinicaVita',data:'2025-04-10',cat:'projeto'},
+  ],
+  clientes:[
+    {id:1,nome:'Carlos Menezes',empresa:'TechBR',email:'carlos@techbr.com',tel:'(11) 98765-4321',status:'ativo',valor:4800,obs:''},
+    {id:2,nome:'Ana Paula Lima',empresa:'LogiSoft',email:'ana@logisoft.com',tel:'(21) 99123-4567',status:'ativo',valor:2200,obs:'Contrato renovado em maio'},
+    {id:3,nome:'Rafael Torres',empresa:'NovaMed',email:'rafael@novamed.com',tel:'(11) 94567-8901',status:'ativo',valor:6500,obs:'2ª fase do app pendente'},
+    {id:4,nome:'Fernanda Costa',empresa:'Autônoma',email:'fernanda@email.com',tel:'(31) 98001-1234',status:'prospect',valor:0,obs:'Aguardando proposta'},
+  ],
+  contratos:[
+    {id:1,nome:'Marcos Oliveira',email:'marcos@pixelhouse.com.br',tel:'(11) 97654-3210',servico:'Site institucional',orcamento:'R$ 3.000 – R$ 5.000',msg:'Preciso de um site moderno para minha agência de design. Tenho urgência no prazo.',data:'2025-06-09',status:'novo'},
+    {id:2,nome:'Juliana Ramos',email:'ju.ramos@mktdigital.io',tel:'(21) 98888-7777',servico:'Sistema web personalizado',orcamento:'R$ 8.000 – R$ 15.000',msg:'Quero automatizar relatórios da minha equipe. Podemos conversar sobre o projeto?',data:'2025-06-08',status:'em contato'},
+    {id:3,nome:'Bruno Alves',email:'bruno@startupx.com',tel:'(11) 91234-5678',servico:'App mobile',orcamento:'R$ 15.000+',msg:'Tenho um MVP para validar. Busco equipe que entenda de produto e não só código.',data:'2025-06-06',status:'convertido'},
+  ]
+};
+
+function doLogin(){
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  if(u===CRED.user&&p===CRED.pass){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    renderAll();
+  }else{document.getElementById('login-err').style.display='block';}
+}
+function doLogout(){
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('l-pass').value='';
+  document.getElementById('login-err').style.display='none';
+}
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function showTab(t,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).style.display='block';
+  btn.classList.add('active');
+  renderAll();
+}
+
+function fmt(v){return'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function statusBadge(s){
+  const m={ativo:'bg-green',prospect:'bg-amber',inativo:'bg-red',novo:'bg-blue','em contato':'bg-amber',convertido:'bg-green',recusado:'bg-red'};
+  return`<span class="badge ${m[s]||'bg-blue'}">${s}</span>`;
+}
+
+function renderAll(){renderOverview();renderFinanca();renderClientes();renderContratos();}
+
+function renderOverview(){
+  const ent=state.financas.filter(f=>f.tipo==='entrada').reduce((a,f)=>a+f.valor,0);
+  const sai=state.financas.filter(f=>f.tipo==='saida').reduce((a,f)=>a+f.valor,0);
+  const saldo=ent-sai;
+  const ativos=state.clientes.filter(c=>c.status==='ativo').length;
+  const novos=state.contratos.filter(c=>c.status==='novo').length;
+
+  document.getElementById('overview-metrics').innerHTML=`
+    <div class="metric" style="--accent:var(--teal)"><div class="metric-label">Receita total</div><div class="metric-value teal">${fmt(ent)}</div></div>
+    <div class="metric" style="--accent:var(--red)"><div class="metric-label">Despesas</div><div class="metric-value red">${fmt(sai)}</div></div>
+    <div class="metric" style="--accent:${saldo>=0?'var(--teal)':'var(--red)'}"><div class="metric-label">Saldo</div><div class="metric-value ${saldo>=0?'teal':'red'}">${fmt(saldo)}</div></div>
+    <div class="metric" style="--accent:var(--blue)"><div class="metric-label">Clientes ativos</div><div class="metric-value blue">${ativos}</div></div>
+    <div class="metric" style="--accent:var(--purple)"><div class="metric-label">Novos pedidos</div><div class="metric-value purple">${novos}</div></div>
+  `;
+
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun'];
+  const entradas=[3200,4100,3800,5600,8300,ent];
+  const saidas=[900,1200,950,1800,2000,sai];
+  const max=Math.max(...entradas,...saidas)||1;
+  document.getElementById('monthly-chart').innerHTML=
+    meses.map((m,i)=>`
+      <div class="bar-row">
+        <span class="bar-label">${m}</span>
+        <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+          <div class="bar-track"><div class="bar-fill bf-teal" style="width:${Math.round(entradas[i]/max*100)}%"></div></div>
+          <div class="bar-track"><div class="bar-fill bf-purple" style="width:${Math.round(saidas[i]/max*100)}%"></div></div>
+        </div>
+        <div style="width:82px;text-align:right;font-size:11px;line-height:1.6">
+          <div style="color:var(--teal);font-weight:600">${fmt(entradas[i])}</div>
+          <div style="color:var(--purple)">${fmt(saidas[i])}</div>
+        </div>
+      </div>`).join('')+
+    `<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--text2)">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--teal);margin-right:5px;vertical-align:middle"></span>Entradas</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--purple);margin-right:5px;vertical-align:middle"></span>Saídas</span>
+    </div>`;
+
+  const recentes=state.contratos.slice(0,4);
+  document.getElementById('recent-contracts').innerHTML=recentes.length
+    ?recentes.map(c=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--purple);flex-shrink:0">${c.nome[0]}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nome}</div>
+          <div style="font-size:11px;color:var(--text2)">${c.servico}</div>
+        </div>
+        ${statusBadge(c.status)}
+      </div>`).join('')
+    :'<div class="empty">Nenhum contrato ainda.</div>';
+}
+
+function renderFinanca(){
+  const ent=state.financas.filter(f=>f.tipo==='entrada').reduce((a,f)=>a+f.valor,0);
+  const sai=state.financas.filter(f=>f.tipo==='saida').reduce((a,f)=>a+f.valor,0);
+  const el=document.getElementById('fin-resumo-top');
+  if(el)el.innerHTML=`<span style="color:var(--teal);font-weight:600">+${fmt(ent)}</span> &nbsp; <span style="color:var(--red);font-weight:600">-${fmt(sai)}</span>`;
+  const lista=document.getElementById('fin-lista');
+  if(!state.financas.length){lista.innerHTML='<div class="empty">Nenhuma movimentação.</div>';return;}
+  lista.innerHTML=state.financas.map(f=>`
+    <div class="fin-item">
+      <div class="fin-icon ${f.tipo==='entrada'?'e':'s'}">${f.tipo==='entrada'?'↑':'↓'}</div>
+      <div class="fin-info">
+        <div class="fin-desc">${f.desc}</div>
+        <div class="fin-sub">${f.data} · ${f.cat}</div>
+      </div>
+      <span class="fin-val ${f.tipo}">${f.tipo==='entrada'?'+':'-'} ${fmt(f.valor)}</span>
+      <button class="btn btn-danger" onclick="delFinanca(${f.id})">✕</button>
+    </div>`).join('');
+}
+function addFinanca(){
+  const tipo=document.getElementById('fin-tipo').value;
+  const valor=parseFloat(document.getElementById('fin-valor').value)||0;
+  const desc=document.getElementById('fin-desc').value.trim();
+  const data=document.getElementById('fin-data').value;
+  const cat=document.getElementById('fin-cat').value;
+  if(!valor||!desc||!data){alert('Preencha todos os campos.');return;}
+  state.financas.unshift({id:state.nextId++,tipo,valor,desc,data,cat});
+  ['fin-valor','fin-desc','fin-data'].forEach(id=>document.getElementById(id).value='');
+  renderAll();
+}
+function delFinanca(id){if(!confirm('Remover movimentação?'))return;state.financas=state.financas.filter(f=>f.id!==id);renderAll();}
+
+function renderClientes(){
+  const tb=document.getElementById('cli-tbody');
+  const el=document.getElementById('cli-count-top');
+  if(el)el.textContent=`${state.clientes.length} cadastrado${state.clientes.length!==1?'s':''}`;
+  if(!state.clientes.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nenhum cliente cadastrado.</td></tr>';return;}
+  tb.innerHTML=state.clientes.map(c=>`
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--teal);flex-shrink:0">${c.nome[0]}</div>
+          <span style="font-weight:600">${c.nome}</span>
+        </div>
+      </td>
+      <td style="color:var(--text2)">${c.empresa||'—'}</td>
+      <td style="font-size:12px"><div style="color:var(--text2)">${c.email}</div><div style="color:var(--text3)">${c.tel||''}</div></td>
+      <td>${statusBadge(c.status)}</td>
+      <td style="font-weight:600;color:var(--teal)">${c.valor?fmt(c.valor):'—'}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-info" onclick="verObs(${c.id})">Obs.</button>
+          <button class="btn btn-danger" onclick="delCliente(${c.id})">✕</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+function addCliente(){
+  const nome=document.getElementById('cli-nome').value.trim();
+  const email=document.getElementById('cli-email').value.trim();
+  if(!nome||!email){alert('Nome e e-mail são obrigatórios.');return;}
+  state.clientes.push({
+    id:state.nextId++,nome,
+    empresa:document.getElementById('cli-empresa').value.trim(),
+    email,tel:document.getElementById('cli-tel').value.trim(),
+    status:document.getElementById('cli-status').value,
+    valor:parseFloat(document.getElementById('cli-valor').value)||0,
+    obs:document.getElementById('cli-obs').value.trim()
+  });
+  ['cli-nome','cli-empresa','cli-email','cli-tel','cli-valor','cli-obs'].forEach(id=>document.getElementById(id).value='');
+  renderAll();
+}
+function delCliente(id){if(!confirm('Remover cliente?'))return;state.clientes=state.clientes.filter(c=>c.id!==id);renderAll();}
+function verObs(id){const c=state.clientes.find(x=>x.id===id);alert(c?(c.obs||'Nenhuma observação.'): 'Não encontrado.');}
+
+function renderContratos(){
+  const lista=document.getElementById('contracts-lista');
+  if(!state.contratos.length){lista.innerHTML='<div class="empty">Nenhum contrato recebido.</div>';return;}
+  lista.innerHTML=state.contratos.map(c=>`
+    <div class="contract-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:42px;height:42px;border-radius:12px;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:var(--purple);flex-shrink:0">${c.nome[0]}</div>
+          <div>
+            <div class="cname">${c.nome}</div>
+            <div class="cmeta">${c.email} · ${c.tel} · ${c.data}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          ${statusBadge(c.status)}
+          <select class="status-sel" onchange="updateContrato(${c.id},this.value)">
+            <option ${c.status==='novo'?'selected':''} value="novo">Novo</option>
+            <option ${c.status==='em contato'?'selected':''} value="em contato">Em contato</option>
+            <option ${c.status==='convertido'?'selected':''} value="convertido">Convertido</option>
+            <option ${c.status==='recusado'?'selected':''} value="recusado">Recusado</option>
+          </select>
+          <button class="btn btn-danger" onclick="delContrato(${c.id})">✕</button>
+        </div>
+      </div>
+      <span class="cserv">💼 ${c.servico} · ${c.orcamento}</span>
+      <div class="cmsg">"${c.msg}"</div>
+    </div>`).join('');
+}
+function updateContrato(id,status){const c=state.contratos.find(x=>x.id===id);if(c){c.status=status;renderAll();}}
+function delContrato(id){if(!confirm('Remover contrato?'))return;state.contratos=state.contratos.filter(c=>c.id!==id);renderAll();}
+
+window.vivaGestao={
+  receberContrato(d){
+    state.contratos.unshift({
+      id:state.nextId++,nome:d.nome||'',email:d.email||'',tel:d.tel||'',
+      servico:d.servico||'',orcamento:d.orcamento||'—',msg:d.msg||'',
+      data:new Date().toISOString().split('T')[0],status:'novo'
+    });
+    renderAll();
+  }
+};
+</script>
+</body>
+</html>
