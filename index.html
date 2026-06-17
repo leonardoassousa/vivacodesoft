@@ -5,6 +5,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Viva Code — Gestão</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB1jgXrkWh0Neq_kiSsUyinbPfCfuXDVOQ",
+    authDomain: "vivacode-f2899.firebaseapp.com",
+    projectId: "vivacode-f2899",
+    storageBucket: "vivacode-f2899.firebasestorage.app",
+    messagingSenderId: "584277033725",
+    appId: "1:584277033725:web:e5531ed7a423808be2b494"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+  const STATE_DOC = doc(db, "vivacode", "estado");
+
+  // Expõe pro script principal (não-módulo) usar
+  window.__fb = { db, doc, getDoc, setDoc, STATE_DOC };
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -155,6 +175,11 @@ tbody tr:hover td{background:#fafafa}
 .info-banner{background:linear-gradient(135deg,#e6f1fb,#ede9fa);border:1px solid #cdd9f0;border-radius:var(--radius);padding:14px 18px;font-size:13px;color:var(--blue);margin-bottom:18px;display:flex;align-items:center;gap:10px}
 .empty{text-align:center;padding:3rem;color:var(--text3);font-size:13px}
 .divider{height:1px;background:var(--border);margin:16px 0}
+.sync-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);padding:4px 10px;border-radius:20px;background:var(--bg)}
+.sync-badge.saving{color:var(--amber)}
+.sync-badge.saved{color:var(--teal)}
+.sync-badge.error{color:var(--red)}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
 @media(max-width:900px){
   .sidebar{width:64px}
@@ -214,6 +239,9 @@ tbody tr:hover td{background:#fafafa}
       </button>
     </nav>
     <div class="sb-footer">
+      <div id="sync-badge" class="sync-badge saved" style="margin-bottom:10px">
+        <span class="sync-dot"></span><span id="sync-text">Sincronizado</span>
+      </div>
       <div class="sb-user">
         <div class="sb-avatar">A</div>
         <div><div class="sb-uname">admin</div><div class="sb-urole">Administrador</div></div>
@@ -327,6 +355,8 @@ tbody tr:hover td{background:#fafafa}
 
 <script>
 const CRED={user:'admin',pass:'vivacode2025'};
+
+// Estado padrão (usado apenas na primeira vez, antes de existir dado salvo)
 let state={
   nextId:20,
   financas:[
@@ -351,13 +381,75 @@ let state={
   ]
 };
 
+// ── SINCRONIZAÇÃO COM FIREBASE ──────────────────────────
+let saveTimeout=null;
+let firstLoadDone=false;
+
+function setSyncBadge(mode){
+  const badge=document.getElementById('sync-badge');
+  const text=document.getElementById('sync-text');
+  if(!badge)return;
+  badge.classList.remove('saving','saved','error');
+  if(mode==='saving'){badge.classList.add('saving');text.textContent='Salvando...';}
+  else if(mode==='error'){badge.classList.add('error');text.textContent='Erro ao salvar';}
+  else{badge.classList.add('saved');text.textContent='Sincronizado';}
+}
+
+async function loadState(){
+  try{
+    const {getDoc,STATE_DOC}=window.__fb;
+    const snap=await getDoc(STATE_DOC);
+    if(snap.exists()){
+      const data=snap.data();
+      state={
+        nextId:data.nextId||20,
+        financas:data.financas||[],
+        clientes:data.clientes||[],
+        contratos:data.contratos||[]
+      };
+    }else{
+      // Primeira vez: salva o estado padrão na nuvem
+      await saveState(true);
+    }
+  }catch(err){
+    console.error('Erro ao carregar dados do Firebase:',err);
+    setSyncBadge('error');
+  }
+  firstLoadDone=true;
+  renderAll();
+}
+
+function saveState(immediate){
+  if(!firstLoadDone&&!immediate)return; // evita salvar antes de carregar
+  setSyncBadge('saving');
+  clearTimeout(saveTimeout);
+  const doSave=async()=>{
+    try{
+      const {setDoc,STATE_DOC}=window.__fb;
+      await setDoc(STATE_DOC,{
+        nextId:state.nextId,
+        financas:state.financas,
+        clientes:state.clientes,
+        contratos:state.contratos,
+        atualizadoEm:new Date().toISOString()
+      });
+      setSyncBadge('saved');
+    }catch(err){
+      console.error('Erro ao salvar no Firebase:',err);
+      setSyncBadge('error');
+    }
+  };
+  if(immediate)return doSave();
+  saveTimeout=setTimeout(doSave,500); // debounce: agrupa mudanças rápidas
+}
+
 function doLogin(){
   const u=document.getElementById('l-user').value.trim();
   const p=document.getElementById('l-pass').value;
   if(u===CRED.user&&p===CRED.pass){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('dashboard').style.display='block';
-    renderAll();
+    loadState();
   }else{document.getElementById('login-err').style.display='block';}
 }
 function doLogout(){
@@ -464,8 +556,9 @@ function addFinanca(){
   state.financas.unshift({id:state.nextId++,tipo,valor,desc,data,cat});
   ['fin-valor','fin-desc','fin-data'].forEach(id=>document.getElementById(id).value='');
   renderAll();
+  saveState();
 }
-function delFinanca(id){if(!confirm('Remover movimentação?'))return;state.financas=state.financas.filter(f=>f.id!==id);renderAll();}
+function delFinanca(id){if(!confirm('Remover movimentação?'))return;state.financas=state.financas.filter(f=>f.id!==id);renderAll();saveState();}
 
 function renderClientes(){
   const tb=document.getElementById('cli-tbody');
@@ -506,8 +599,9 @@ function addCliente(){
   });
   ['cli-nome','cli-empresa','cli-email','cli-tel','cli-valor','cli-obs'].forEach(id=>document.getElementById(id).value='');
   renderAll();
+  saveState();
 }
-function delCliente(id){if(!confirm('Remover cliente?'))return;state.clientes=state.clientes.filter(c=>c.id!==id);renderAll();}
+function delCliente(id){if(!confirm('Remover cliente?'))return;state.clientes=state.clientes.filter(c=>c.id!==id);renderAll();saveState();}
 function verObs(id){const c=state.clientes.find(x=>x.id===id);alert(c?(c.obs||'Nenhuma observação.'): 'Não encontrado.');}
 
 function renderContratos(){
@@ -538,17 +632,19 @@ function renderContratos(){
       <div class="cmsg">"${c.msg}"</div>
     </div>`).join('');
 }
-function updateContrato(id,status){const c=state.contratos.find(x=>x.id===id);if(c){c.status=status;renderAll();}}
-function delContrato(id){if(!confirm('Remover contrato?'))return;state.contratos=state.contratos.filter(c=>c.id!==id);renderAll();}
+function updateContrato(id,status){const c=state.contratos.find(x=>x.id===id);if(c){c.status=status;renderAll();saveState();}}
+function delContrato(id){if(!confirm('Remover contrato?'))return;state.contratos=state.contratos.filter(c=>c.id!==id);renderAll();saveState();}
 
 window.vivaGestao={
-  receberContrato(d){
-    state.contratos.unshift({
+  async receberContrato(d){
+    const novo={
       id:state.nextId++,nome:d.nome||'',email:d.email||'',tel:d.tel||'',
       servico:d.servico||'',orcamento:d.orcamento||'—',msg:d.msg||'',
       data:new Date().toISOString().split('T')[0],status:'novo'
-    });
+    };
+    state.contratos.unshift(novo);
     renderAll();
+    saveState(true);
   }
 };
 </script>
