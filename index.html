@@ -31,21 +31,38 @@
   --red:#e8615f;--red-dim:#3a1f1f;
   --amber:#e8a23d;--amber-dim:#3a2f1a;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',system-ui,sans-serif;
-  --r:6px;--r-lg:10px;
+  --r:6px;--r-lg:10px;--r-xl:16px;
 }
 html{background:var(--navy)}
-body{font-family:var(--sans);background:var(--navy);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.55;background-image:radial-gradient(circle at 15% 0%,rgba(95,57,163,0.08),transparent 45%),radial-gradient(circle at 85% 100%,rgba(0,152,148,0.06),transparent 45%)}
+body{font-family:var(--sans);background:var(--navy);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.55;overflow-x:hidden;position:relative}
 .mono{font-family:var(--mono)}
 ::selection{background:var(--purple);color:#fff}
 *::-webkit-scrollbar{width:8px;height:8px}
 *::-webkit-scrollbar-track{background:transparent}
 *::-webkit-scrollbar-thumb{background:var(--navy-line);border-radius:4px}
 
+/* ── BACKGROUND WATERMARK ── */
+.bg-watermark{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:var(--navy)}
+.bg-watermark::before{
+  content:'VIVA';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--mono);font-weight:700;font-size:38vw;letter-spacing:-0.04em;
+  color:transparent;background:linear-gradient(135deg,rgba(0,152,148,.07),rgba(95,57,163,.09));
+  -webkit-background-clip:text;background-clip:text;white-space:nowrap;line-height:1;
+}
+.bg-watermark::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 15%,rgba(95,57,163,.10),transparent 40%),
+             radial-gradient(circle at 80% 85%,rgba(0,152,148,.08),transparent 40%);
+}
+.bg-grid{position:fixed;inset:0;z-index:0;opacity:.35;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:42px 42px;}
+
 /* ── LOGIN ── */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;z-index:5}
 .login-wrap{width:100%;max-width:380px}
-.login-term{background:var(--navy2);border:1px solid var(--navy-line);border-radius:var(--r-lg);overflow:hidden}
-.login-term-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--navy3);border-bottom:1px solid var(--navy-line)}
+.login-term{background:rgba(15,12,58,.85);backdrop-filter:blur(16px);border:1px solid var(--navy-line);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.login-term-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:rgba(20,17,74,.9);border-bottom:1px solid var(--navy-line)}
 .login-term-bar .dot{width:9px;height:9px;border-radius:50%}
 .login-term-bar .dot:nth-child(1){background:#e8615f}
 .login-term-bar .dot:nth-child(2){background:#e8a23d}
@@ -62,9 +79,10 @@ body{font-family:var(--sans);background:var(--navy);color:var(--ink);min-height:
 .lf-group{margin-bottom:16px}
 .lf-group label{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-bottom:6px}
 .lf-group label::before{content:'$ ';color:var(--purple-bright)}
-.lf-group input{width:100%;padding:11px 13px;background:var(--navy);border:1px solid var(--navy-line);border-radius:var(--r);font-family:var(--mono);font-size:14px;color:var(--ink);outline:none;transition:border-color .15s}
+.lf-group select,.lf-group input{width:100%;padding:11px 13px;background:var(--navy);border:1px solid var(--navy-line);border-radius:var(--r);font-family:var(--mono);font-size:14px;color:var(--ink);outline:none;transition:border-color .15s}
+.lf-group select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b88a8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 .lf-group input::placeholder{color:var(--ink-faint)}
-.lf-group input:focus{border-color:var(--teal)}
+.lf-group input:focus,.lf-group select:focus{border-color:var(--teal)}
 .login-btn{width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--r);font-family:var(--mono);font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;transition:background .15s}
 .login-btn:hover{background:#00b3ad}
 .login-btn::before{content:'▸ '}
@@ -72,53 +90,48 @@ body{font-family:var(--sans);background:var(--navy);color:var(--ink);min-height:
 .login-err::before{content:'✕ '}
 .login-foot{text-align:center;font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:20px}
 
-/* ── DASHBOARD SHELL ── */
-#dashboard{display:none;min-height:100vh}
-.sidebar{position:fixed;top:0;left:0;width:236px;height:100vh;background:var(--navy2);border-right:1px solid var(--navy-line);display:flex;flex-direction:column;z-index:100}
-.sb-brand{padding:20px 18px;border-bottom:1px solid var(--navy-line)}
-.sb-brand-logo{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:-0.5px}
-.sb-brand-logo .t{color:var(--teal-bright)}
-.sb-brand-logo .p{color:var(--purple-bright)}
-.sb-brand-path{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);margin-top:3px}
-.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:1px}
-.sb-section-label{font-family:var(--mono);font-size:10px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.08em;padding:10px 10px 6px}
-.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;color:var(--ink-dim);font-family:var(--mono);font-size:12.5px;border:none;background:transparent;width:100%;text-align:left;transition:all .12s}
-.sb-item:hover{background:rgba(255,255,255,.04);color:var(--ink)}
-.sb-item.active{background:rgba(0,152,148,.12);color:var(--teal-bright);border-left:2px solid var(--teal);padding-left:8px}
-.sb-item .icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
-.sb-footer{padding:12px 10px;border-top:1px solid var(--navy-line)}
-.sync-line{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);padding:8px 10px}
+/* ── DASHBOARD SHELL (floating navbar layout) ── */
+#dashboard{display:none;min-height:100vh;position:relative;z-index:5}
+.floatnav-wrap{position:sticky;top:0;z-index:200;display:flex;justify-content:center;padding:18px 20px 0}
+.floatnav{display:flex;align-items:center;gap:4px;background:rgba(15,12,58,.78);backdrop-filter:blur(18px);border:1px solid var(--navy-line);border-radius:999px;padding:6px;box-shadow:0 12px 40px rgba(0,0,0,.35);max-width:100%;overflow-x:auto}
+.floatnav-brand{display:flex;align-items:center;gap:7px;padding:7px 14px 7px 10px;border-right:1px solid var(--navy-line);margin-right:4px;flex-shrink:0}
+.floatnav-brand .dot-logo{width:7px;height:7px;border-radius:50%;background:var(--teal-bright);box-shadow:0 0 8px var(--teal-bright)}
+.floatnav-brand-text{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:-0.3px}
+.floatnav-brand-text .t{color:var(--teal-bright)}
+.floatnav-brand-text .p{color:var(--purple-bright)}
+.floatnav-pill{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;cursor:pointer;color:var(--ink-dim);font-family:var(--mono);font-size:12px;border:none;background:transparent;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.floatnav-pill:hover{color:var(--ink);background:rgba(255,255,255,.05)}
+.floatnav-pill.active{background:var(--teal);color:#04201e;font-weight:600}
+.floatnav-pill .icon{font-size:13px}
+.floatnav-right{display:flex;align-items:center;gap:6px;padding-left:6px;margin-left:4px;border-left:1px solid var(--navy-line);flex-shrink:0}
+.floatnav-user{display:flex;align-items:center;gap:7px;padding:6px 10px 6px 6px;border-radius:999px}
+.floatnav-avatar{width:24px;height:24px;border-radius:50%;background:var(--purple-dim);border:1px solid var(--purple);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--purple-bright);flex-shrink:0}
+.floatnav-uname{font-family:var(--mono);font-size:11px;color:var(--ink-dim);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.floatnav-logout{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;cursor:pointer;color:var(--ink-faint);border:none;background:transparent;transition:all .15s;flex-shrink:0}
+.floatnav-logout:hover{color:var(--red);background:rgba(232,97,95,.1)}
+.sync-pill{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--ink-faint);padding:6px 10px;flex-shrink:0}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--teal-bright);flex-shrink:0}
-.sync-line.saving .sync-dot{background:var(--amber);animation:pulse 1s infinite}
-.sync-line.error .sync-dot{background:var(--red)}
+.sync-pill.saving .sync-dot{background:var(--amber);animation:pulse 1s infinite}
+.sync-pill.error .sync-dot{background:var(--red)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;margin-top:2px}
-.sb-avatar{width:28px;height:28px;border-radius:var(--r);background:var(--purple-dim);border:1px solid var(--purple);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple-bright);flex-shrink:0}
-.sb-uname{font-family:var(--mono);font-size:11.5px;color:var(--ink)}
-.sb-urole{font-family:var(--mono);font-size:10px;color:var(--ink-faint)}
-.sb-logout{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);cursor:pointer;color:var(--ink-faint);font-family:var(--mono);font-size:11.5px;border:none;background:transparent;width:100%;margin-top:4px;transition:all .12s}
-.sb-logout:hover{color:var(--red);background:rgba(232,97,95,.08)}
 
-.main{margin-left:236px;min-height:100vh;display:flex;flex-direction:column}
-.tabbar{display:flex;border-bottom:1px solid var(--navy-line);background:var(--navy2)}
-.tabbar-tab{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);padding:10px 18px;border-right:1px solid var(--navy-line)}
-.tabbar-tab.current{color:var(--teal-bright);background:var(--navy)}
-.content{padding:24px 30px 40px;flex:1}
-.page-head{margin-bottom:20px}
-.page-title{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink)}
+.main{width:100%}
+.content{padding:28px 30px 60px;max-width:1280px;margin:0 auto}
+.page-head{margin-bottom:20px;text-align:center}
+.page-title{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--ink)}
 .page-title::before{content:'// ';color:var(--ink-faint)}
 .page-sub{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-top:4px}
 
 /* ── PANELS / CARDS ── */
-.panel{background:var(--navy2);border:1px solid var(--navy-line);border-radius:var(--r-lg);overflow:hidden}
-.panel-head{display:flex;align-items:center;gap:8px;padding:11px 16px;background:var(--navy3);border-bottom:1px solid var(--navy-line);font-family:var(--mono);font-size:11.5px;color:var(--ink-faint)}
+.panel{background:rgba(15,12,58,.7);backdrop-filter:blur(8px);border:1px solid var(--navy-line);border-radius:var(--r-lg);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:8px;padding:11px 16px;background:rgba(20,17,74,.6);border-bottom:1px solid var(--navy-line);font-family:var(--mono);font-size:11.5px;color:var(--ink-faint)}
 .panel-head .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0}
 .panel-body{padding:18px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
 /* ── METRICS ── */
 .metrics-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-.metric{background:var(--navy2);border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:16px;position:relative}
+.metric{background:rgba(15,12,58,.7);backdrop-filter:blur(8px);border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:16px;position:relative}
 .metric-tag{font-family:var(--mono);font-size:10px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
 .metric-tag .led{width:6px;height:6px;border-radius:50%}
 .metric-value{font-family:var(--mono);font-size:21px;font-weight:700;color:var(--ink)}
@@ -135,7 +148,7 @@ td{padding:10px 14px;border-bottom:1px solid var(--navy-line);color:var(--ink);v
 tbody tr:hover td{background:rgba(255,255,255,.02)}
 tr:last-child td{border-bottom:none}
 
-/* ── BADGES (status tags, terminal-style) ── */
+/* ── BADGES ── */
 .tag{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:600;border:1px solid currentColor}
 .tag::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
 .tag-green{color:var(--teal-bright);background:rgba(61,217,196,.08)}
@@ -189,8 +202,8 @@ tr:last-child td{border-bottom:none}
 .bf-purple{background:var(--purple-bright)}
 .bf-amber{background:var(--amber)}
 
-/* ── CONTRATOS / PROJETOS card ── */
-.entity-card{background:var(--navy2);border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:12px}
+/* ── ENTITY CARDS (contratos antigos / genérico) ── */
+.entity-card{background:rgba(15,12,58,.7);border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:12px}
 .entity-card:hover{border-color:var(--ink-faint)}
 .ename{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink)}
 .emeta{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:3px}
@@ -199,25 +212,36 @@ tr:last-child td{border-bottom:none}
 .status-sel{font-family:var(--mono);font-size:11px;padding:5px 8px;border:1px solid var(--navy-line);border-radius:var(--r);background:var(--navy);color:var(--ink);cursor:pointer;outline:none}
 .status-sel:focus{border-color:var(--teal)}
 
-.info-banner{background:var(--navy3);border:1px solid var(--navy-line);border-left:2px solid var(--purple);border-radius:var(--r);padding:13px 16px;font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-bottom:18px}
+.info-banner{background:rgba(20,17,74,.6);border:1px solid var(--navy-line);border-left:2px solid var(--purple);border-radius:var(--r);padding:13px 16px;font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin-bottom:18px}
 .empty{text-align:center;padding:2.5rem;color:var(--ink-faint);font-family:var(--mono);font-size:12.5px}
 .empty::before{content:'∅ '}
 
-/* ── PAGAMENTO CARD (closing contract) ── */
+/* ── PAGAMENTO CARD ── */
 .pay-option{border:1px solid var(--navy-line);border-radius:var(--r-lg);padding:14px;cursor:pointer;transition:all .12s}
 .pay-option:hover{border-color:var(--ink-faint)}
 .pay-option.selected{border-color:var(--teal);background:rgba(0,152,148,.05)}
 .pay-option-title{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
 .pay-option-desc{font-size:11.5px;color:var(--ink-faint)}
 
-/* ── PROJETOS / ANDAMENTO ── */
-.progress-card{background:var(--navy2);border:1px solid var(--navy-line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:14px}
-.progress-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--navy-line)}
-.progress-body{padding:14px 18px}
+/* ── CLIENTE EXPANDIDO (com projeto + contrato embutido) ── */
+.client-card{background:rgba(15,12,58,.7);border:1px solid var(--navy-line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:14px}
+.client-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;cursor:pointer}
+.client-head:hover{background:rgba(255,255,255,.02)}
+.client-id{display:flex;align-items:center;gap:11px}
+.client-avatar{width:36px;height:36px;border-radius:var(--r);background:rgba(61,217,196,.1);border:1px solid rgba(61,217,196,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14px;color:var(--teal-bright);flex-shrink:0}
+.client-name{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink)}
+.client-meta{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:3px}
+.client-body{padding:0 18px 18px;display:none;border-top:1px solid var(--navy-line)}
+.client-body.open{display:block}
+.client-section{margin-top:16px}
+.client-section-title{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.client-section-title::before{content:'▸';color:var(--purple-bright)}
 .comment-item{padding:10px 0;border-bottom:1px solid var(--navy-line)}
 .comment-item:last-child{border-bottom:none}
-.comment-date{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-bottom:3px}
+.comment-date{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-bottom:3px;display:flex;gap:8px}
+.comment-author{color:var(--purple-bright)}
 .comment-text{font-size:12.5px;color:var(--ink-dim);line-height:1.55}
+.contract-dl-box{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--navy);border:1px solid var(--navy-line);border-radius:var(--r);padding:12px 14px}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(5,3,20,.7);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
 .modal-box{background:var(--navy2);border:1px solid var(--navy-line);border-radius:var(--r-lg);max-width:480px;width:100%;max-height:85vh;overflow-y:auto}
@@ -228,17 +252,20 @@ tr:last-child td{border-bottom:none}
 .modal-body{padding:18px}
 
 @media(max-width:900px){
-  .sidebar{width:60px}
-  .sb-item span:not(.icon),.sb-brand-logo,.sb-brand-path,.sb-uname,.sb-urole,.sb-logout span:not(.icon),.sb-section-label{display:none}
-  .main{margin-left:60px}
   .metrics-grid{grid-template-columns:repeat(2,1fr)}
   .grid-2{grid-template-columns:1fr}
   .form-row,.form-row-3{grid-template-columns:1fr}
-  .content{padding:16px}
+  .content{padding:18px 14px 50px}
+  .floatnav{max-width:100%}
+  .floatnav-uname{display:none}
+  .bg-watermark::before{font-size:60vw}
 }
 </style>
 </head>
 <body>
+
+<div class="bg-watermark"></div>
+<div class="bg-grid"></div>
 
 <div id="login-screen">
   <div class="login-wrap">
@@ -252,15 +279,17 @@ tr:last-child td{border-bottom:none}
         <div class="login-brand-name"><span class="t">VI</span><span class="p">VA</span> <span style="font-size:14px;color:var(--ink-faint)">{code}</span></div>
         <div class="login-prompt"><span class="arrow">›</span> autentique-se para continuar</div>
         <div class="lf-group">
-          <label>usuario</label>
-          <input id="l-user" type="text" placeholder="admin" autocomplete="username"/>
+          <label>administrador</label>
+          <select id="l-user">
+            <option value="">selecione...</option>
+          </select>
         </div>
         <div class="lf-group">
           <label>senha</label>
           <input id="l-pass" type="password" placeholder="••••••" autocomplete="current-password"/>
         </div>
         <button class="login-btn" onclick="doLogin()">entrar</button>
-        <div class="login-err" id="login-err">acesso negado — usuário ou senha incorretos</div>
+        <div class="login-err" id="login-err">acesso negado — senha incorreta</div>
       </div>
     </div>
     <div class="login-foot">painel interno · não indexado · uso restrito</div>
@@ -268,48 +297,29 @@ tr:last-child td{border-bottom:none}
 </div>
 
 <div id="dashboard">
-  <div class="sidebar">
-    <div class="sb-brand">
-      <div class="sb-brand-logo"><span class="t">VI</span><span class="p">VA</span></div>
-      <div class="sb-brand-path">~/gestao {code}</div>
-    </div>
-    <nav class="sb-nav">
-      <div class="sb-section-label">painel</div>
-      <button class="sb-item active" onclick="showTab('overview',this)">
-        <span class="icon">◆</span><span>visao-geral</span>
-      </button>
-      <button class="sb-item" onclick="showTab('finance',this)">
-        <span class="icon">$</span><span>financeiro</span>
-      </button>
-      <div class="sb-section-label">relacionamento</div>
-      <button class="sb-item" onclick="showTab('clients',this)">
-        <span class="icon">@</span><span>clientes</span>
-      </button>
-      <button class="sb-item" onclick="showTab('projects',this)">
-        <span class="icon">▶</span><span>projetos</span>
-      </button>
-      <button class="sb-item" onclick="showTab('contracts',this)">
-        <span class="icon">▤</span><span>contratos</span>
-      </button>
+  <div class="floatnav-wrap">
+    <nav class="floatnav">
+      <div class="floatnav-brand">
+        <span class="dot-logo"></span>
+        <span class="floatnav-brand-text"><span class="t">VI</span><span class="p">VA</span></span>
+      </div>
+      <button class="floatnav-pill active" onclick="showTab('overview',this)"><span class="icon">◆</span>visao-geral</button>
+      <button class="floatnav-pill" onclick="showTab('finance',this)"><span class="icon">$</span>financeiro</button>
+      <button class="floatnav-pill" onclick="showTab('clients',this)"><span class="icon">@</span>clientes</button>
+      <div class="floatnav-right">
+        <div class="sync-pill" id="sync-badge"><span class="sync-dot"></span><span id="sync-text">sincronizado</span></div>
+        <div class="floatnav-user">
+          <div class="floatnav-avatar" id="nav-avatar">A</div>
+          <span class="floatnav-uname" id="nav-uname">admin</span>
+        </div>
+        <button class="floatnav-logout" onclick="doLogout()" title="encerrar sessão">⏻</button>
+      </div>
     </nav>
-    <div class="sb-footer">
-      <div class="sync-line saved" id="sync-badge">
-        <span class="sync-dot"></span><span id="sync-text">sincronizado</span>
-      </div>
-      <div class="sb-user">
-        <div class="sb-avatar">A</div>
-        <div><div class="sb-uname">admin</div><div class="sb-urole">administrador</div></div>
-      </div>
-      <button class="sb-logout" onclick="doLogout()">
-        <span class="icon">⏻</span><span>encerrar sessão</span>
-      </button>
-    </div>
   </div>
 
   <div class="main">
     <!-- VISÃO GERAL -->
     <div id="tab-overview" class="tab-panel active">
-      <div class="tabbar"><div class="tabbar-tab current">overview.js</div></div>
       <div class="content">
         <div class="page-head">
           <div class="page-title">visao-geral</div>
@@ -331,7 +341,6 @@ tr:last-child td{border-bottom:none}
 
     <!-- FINANCEIRO -->
     <div id="tab-finance" class="tab-panel" style="display:none">
-      <div class="tabbar"><div class="tabbar-tab current">financeiro.js</div></div>
       <div class="content">
         <div class="page-head">
           <div class="page-title">financeiro</div>
@@ -379,14 +388,27 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- CLIENTES -->
+    <!-- CLIENTES (com projetos/andamento e contrato mesclados) -->
     <div id="tab-clients" class="tab-panel" style="display:none">
-      <div class="tabbar"><div class="tabbar-tab current">clientes.db</div></div>
       <div class="content">
         <div class="page-head">
           <div class="page-title">clientes</div>
           <div class="page-sub" id="cli-count-top"></div>
         </div>
+
+        <div class="panel" style="margin-bottom:16px">
+          <div class="panel-head"><span class="dot" style="background:var(--purple-bright)"></span>modelo-contrato.pdf</div>
+          <div class="panel-body">
+            <div class="contract-dl-box">
+              <div>
+                <div style="font-family:var(--mono);font-size:13px;color:var(--ink)">Contrato_VivaCode_Profissional.pdf</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:3px">modelo padrão — disponível também dentro de cada cliente</div>
+              </div>
+              <button class="btn btn-purple" onclick="baixarContrato()">baixar pdf</button>
+            </div>
+          </div>
+        </div>
+
         <div class="panel" style="margin-bottom:16px">
           <div class="panel-head"><span class="dot"></span>novo-registro.insert</div>
           <div class="panel-body">
@@ -408,50 +430,13 @@ tr:last-child td{border-bottom:none}
             <button class="btn btn-teal" onclick="addCliente()">salvar</button>
           </div>
         </div>
-        <div class="panel">
-          <div class="panel-head"><span class="dot"></span>SELECT * FROM clientes</div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>nome</th><th>empresa</th><th>contato</th><th>status</th><th>contrato</th><th></th></tr></thead>
-              <tbody id="cli-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- PROJETOS / ANDAMENTO -->
-    <div id="tab-projects" class="tab-panel" style="display:none">
-      <div class="tabbar"><div class="tabbar-tab current">projetos.status</div></div>
-      <div class="content">
-        <div class="page-head">
-          <div class="page-title">projetos &amp; andamento</div>
-          <div class="page-sub">status de execução e histórico de comentários por cliente</div>
-        </div>
-        <div id="projects-lista"></div>
-      </div>
-    </div>
+        <div id="clients-lista"></div>
 
-    <!-- CONTRATOS -->
-    <div id="tab-contracts" class="tab-panel" style="display:none">
-      <div class="tabbar"><div class="tabbar-tab current">contratos.pdf</div></div>
-      <div class="content">
-        <div class="page-head">
-          <div class="page-title">contratos</div>
-          <div class="page-sub">solicitações recebidas pelo site + modelo de contrato</div>
+        <div class="panel" style="margin-top:18px">
+          <div class="panel-head"><span class="dot" style="background:var(--purple-bright)"></span>contratos-recebidos.log</div>
+          <div class="panel-body" id="contracts-pending-lista"></div>
         </div>
-        <div class="info-banner">› pedidos enviados pelo formulário do site público chegam aqui automaticamente, em tempo real.</div>
-        <div class="panel" style="margin-bottom:18px">
-          <div class="panel-head"><span class="dot" style="background:var(--purple-bright)"></span>modelo-contrato.pdf</div>
-          <div class="panel-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-            <div>
-              <div style="font-family:var(--mono);font-size:13px;color:var(--ink)">Contrato_VivaCode_Profissional.pdf</div>
-              <div style="font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:3px">modelo padrão de prestação de serviços — pronto para preencher e imprimir</div>
-            </div>
-            <button class="btn btn-purple" onclick="baixarContrato()">baixar pdf</button>
-          </div>
-        </div>
-        <div id="contracts-lista"></div>
       </div>
     </div>
 
@@ -461,7 +446,24 @@ tr:last-child td{border-bottom:none}
 <div id="modal-root"></div>
 
 <script>
-const CRED={user:'admin',pass:'vivacode2025'};
+// ── ADMINISTRADORES (login individual) ──────────────────
+const ADMINS=[
+  {id:'leonardo',nome:'Leonardo Assis',pass:'viva2025leo'},
+  {id:'arthur',nome:'Arthur Pardim',pass:'viva2025art'},
+  {id:'thiago',nome:'Thiago Aragão',pass:'viva2025thi'},
+  {id:'rhayza',nome:'Rhayza Nunes',pass:'viva2025rha'},
+];
+let currentAdmin=null;
+
+function populateAdminSelect(){
+  const sel=document.getElementById('l-user');
+  ADMINS.forEach(a=>{
+    const opt=document.createElement('option');
+    opt.value=a.id;opt.textContent=a.nome;
+    sel.appendChild(opt);
+  });
+}
+populateAdminSelect();
 
 let state={
   nextId:30,
@@ -474,8 +476,6 @@ let state={
     {id:6,tipo:'saida',valor:1200,desc:'Freelancer design UX',data:'2025-05-22',cat:'pessoal'},
     {id:7,tipo:'entrada',valor:3800,desc:'Sistema agendamento — ClinicaVita',data:'2025-04-10',cat:'projeto'},
   ],
-  // valores combinados mas ainda não recebidos. ao chegar/passar dataPrevista, sobem para 'financas' (entrada) automaticamente,
-  // mas podem ser confirmados/editados manualmente antes ou depois disso.
   receber:[
     {id:1,clienteId:3,desc:'2ª parcela — App mobile NovaMed',valor:3250,dataPrevista:'2025-07-15',recebido:false},
   ],
@@ -485,19 +485,19 @@ let state={
     {id:3,nome:'Rafael Torres',empresa:'NovaMed',email:'rafael@novamed.com',tel:'(11) 94567-8901',status:'ativo',valor:6500,obs:'2ª fase do app pendente'},
     {id:4,nome:'Fernanda Costa',empresa:'Autônoma',email:'fernanda@email.com',tel:'(31) 98001-1234',status:'prospect',valor:0,obs:'Aguardando proposta'},
   ],
-  // status do projeto/andamento por cliente + comentarios (pedido 2)
+  // status + comentarios por cliente (cada comentário guarda quem escreveu)
   projetos:[
-    {id:1,clienteId:1,status:'em_andamento',comentarios:[{data:'2025-06-02',texto:'Kickoff feito, wireframes aprovados pelo cliente.'}]},
-    {id:2,clienteId:2,status:'concluido',comentarios:[{data:'2025-06-03','texto':'Manutenção mensal em dia, sem pendências.'}]},
+    {id:1,clienteId:1,status:'em_andamento',comentarios:[{data:'2025-06-02',autor:'Leonardo Assis',texto:'Kickoff feito, wireframes aprovados pelo cliente.'}]},
+    {id:2,clienteId:2,status:'concluido',comentarios:[{data:'2025-06-03',autor:'Leonardo Assis',texto:'Manutenção mensal em dia, sem pendências.'}]},
     {id:3,clienteId:3,status:'em_andamento',comentarios:[
-      {data:'2025-05-20',texto:'Fase 1 entregue e homologada.'},
-      {data:'2025-06-10',texto:'Iniciando fase 2 — agenda médica e notificações push.'}
+      {data:'2025-05-20',autor:'Arthur Pardim',texto:'Fase 1 entregue e homologada.'},
+      {data:'2025-06-10',autor:'Thiago Aragão',texto:'Iniciando fase 2 — agenda médica e notificações push.'}
     ]},
   ],
   contratos:[
-    {id:1,nome:'Marcos Oliveira',email:'marcos@pixelhouse.com.br',tel:'(11) 97654-3210',servico:'Site institucional',orcamento:'R$ 3.000 – R$ 5.000',msg:'Preciso de um site moderno para minha agência de design. Tenho urgência no prazo.',data:'2025-06-09',status:'novo',pagamento:null},
-    {id:2,nome:'Juliana Ramos',email:'ju.ramos@mktdigital.io',tel:'(21) 98888-7777',servico:'Sistema web personalizado',orcamento:'R$ 8.000 – R$ 15.000',msg:'Quero automatizar relatórios da minha equipe. Podemos conversar sobre o projeto?',data:'2025-06-08',status:'em contato',pagamento:null},
-    {id:3,nome:'Bruno Alves',email:'bruno@startupx.com',tel:'(11) 91234-5678',servico:'App mobile',orcamento:'R$ 15.000+',msg:'Tenho um MVP para validar. Busco equipe que entenda de produto e não só código.',data:'2025-06-06',status:'convertido',pagamento:{tipo:'50-50',entrada:7500,final:7500}},
+    {id:1,nome:'Marcos Oliveira',email:'marcos@pixelhouse.com.br',tel:'(11) 97654-3210',servico:'Site institucional',orcamento:'R$ 3.000 – R$ 5.000',msg:'Preciso de um site moderno para minha agência de design. Tenho urgência no prazo.',data:'2025-06-09',status:'novo',pagamento:null,fechadoPor:null},
+    {id:2,nome:'Juliana Ramos',email:'ju.ramos@mktdigital.io',tel:'(21) 98888-7777',servico:'Sistema web personalizado',orcamento:'R$ 8.000 – R$ 15.000',msg:'Quero automatizar relatórios da minha equipe. Podemos conversar sobre o projeto?',data:'2025-06-08',status:'em contato',pagamento:null,fechadoPor:null},
+    {id:3,nome:'Bruno Alves',email:'bruno@startupx.com',tel:'(11) 91234-5678',servico:'App mobile',orcamento:'R$ 15.000+',msg:'Tenho um MVP para validar. Busco equipe que entenda de produto e não só código.',data:'2025-06-06',status:'convertido',pagamento:{tipo:'50-50',entrada:7500,final:7500},fechadoPor:'Rhayza Nunes'},
   ]
 };
 
@@ -577,36 +577,41 @@ function saveState(immediate){
   saveTimeout=setTimeout(doSave,500);
 }
 
-// Calcula quantos dias faltam (ou já passaram) até a data prevista
 function diasParaData(dataPrevista){
   const hoje=new Date();
   hoje.setHours(0,0,0,0);
   const alvo=new Date(dataPrevista+'T00:00:00');
-  const diffMs=alvo-hoje;
-  return Math.round(diffMs/86400000);
+  return Math.round((alvo-hoje)/86400000);
 }
-
 
 function doLogin(){
-  const u=document.getElementById('l-user').value.trim();
+  const u=document.getElementById('l-user').value;
   const p=document.getElementById('l-pass').value;
-  if(u===CRED.user&&p===CRED.pass){
+  const admin=ADMINS.find(a=>a.id===u);
+  if(admin&&admin.pass===p){
+    currentAdmin=admin;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('dashboard').style.display='block';
+    document.getElementById('nav-uname').textContent=admin.nome;
+    document.getElementById('nav-avatar').textContent=admin.nome[0];
     loadState();
-  }else{document.getElementById('login-err').style.display='block';}
+  }else{
+    document.getElementById('login-err').style.display='block';
+  }
 }
 function doLogout(){
+  currentAdmin=null;
   document.getElementById('dashboard').style.display='none';
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('l-pass').value='';
+  document.getElementById('l-user').value='';
   document.getElementById('login-err').style.display='none';
 }
 document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
 function showTab(t,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none');
-  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.floatnav-pill').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+t).style.display='block';
   btn.classList.add('active');
   renderAll();
@@ -625,7 +630,7 @@ function statusTag(s){
   return`<span class="tag ${m[0]}">${m[1]}</span>`;
 }
 
-function renderAll(){renderOverview();renderFinanca();renderClientes();renderProjetos();renderContratos();}
+function renderAll(){renderOverview();renderFinanca();renderClientes();}
 
 function renderOverview(){
   const ent=state.financas.filter(f=>f.tipo==='entrada').reduce((a,f)=>a+f.valor,0);
@@ -633,7 +638,6 @@ function renderOverview(){
   const saldo=ent-sai;
   const aReceber=state.receber.filter(r=>!r.recebido).reduce((a,r)=>a+r.valor,0);
   const ativos=state.clientes.filter(c=>c.status==='ativo').length;
-  const novos=state.contratos.filter(c=>c.status==='novo').length;
 
   document.getElementById('overview-metrics').innerHTML=`
     <div class="metric"><div class="metric-tag">saldo<span class="led" style="background:${saldo>=0?'var(--teal-bright)':'var(--red)'}"></span></div><div class="metric-value ${saldo>=0?'teal':'red'}">${fmt(saldo)}</div></div>
@@ -672,7 +676,7 @@ function renderOverview(){
         <div style="width:30px;height:30px;border-radius:var(--r);background:rgba(155,127,232,.1);border:1px solid rgba(155,127,232,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:12px;color:var(--purple-bright);flex-shrink:0">${esc(c.nome[0])}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.nome)}</div>
-          <div class="mono" style="font-size:10.5px;color:var(--ink-faint)">${esc(c.servico)}</div>
+          <div class="mono" style="font-size:10.5px;color:var(--ink-faint)">${esc(c.servico)}${c.fechadoPor?' · fechado por '+esc(c.fechadoPor):''}</div>
         </div>
         ${statusTag(c.status)}
       </div>`).join('')
@@ -685,7 +689,6 @@ function renderFinanca(){
   const el=document.getElementById('fin-resumo-top');
   if(el)el.innerHTML=`<span style="color:var(--teal-bright)">+${fmt(ent)}</span> &nbsp;/&nbsp; <span style="color:var(--red)">-${fmt(sai)}</span> &nbsp;=&nbsp; <span style="color:var(--ink)">${fmt(ent-sai)}</span>`;
 
-  // Lista "a receber" — mostra contagem de dias até a data prevista (não soma ao saldo até confirmar)
   const recList=document.getElementById('receber-lista');
   const pendentes=state.receber.filter(r=>!r.recebido);
   if(!pendentes.length){
@@ -747,43 +750,139 @@ function confirmarRecebimento(id){
   r.recebido=true;
   state.financas.unshift({
     id:state.nextId++,tipo:'entrada',valor:r.valor,
-    desc:r.desc+' (confirmado manualmente)',
+    desc:r.desc+' (confirmado por '+(currentAdmin?currentAdmin.nome:'admin')+')',
     data:new Date().toISOString().split('T')[0],cat:'projeto',origemReceberId:r.id
   });
   renderAll();
   saveState();
 }
 function delReceber(id){if(!confirm('Remover valor a receber?'))return;state.receber=state.receber.filter(r=>r.id!==id);renderAll();saveState();}
-function addReceber(clienteId,desc,valor,dataPrevista){
-  state.receber.push({id:state.nextId++,clienteId,desc,valor,dataPrevista,recebido:false});
-  renderAll();saveState();
-}
+
+let clienteExpandidoId=null;
 
 function renderClientes(){
-  const tb=document.getElementById('cli-tbody');
   const el=document.getElementById('cli-count-top');
   if(el)el.textContent=`${state.clientes.length} registro${state.clientes.length!==1?'s':''}`;
-  if(!state.clientes.length){tb.innerHTML='<tr><td colspan="6" class="empty">nenhum cliente cadastrado</td></tr>';return;}
-  tb.innerHTML=state.clientes.map(c=>`
-    <tr>
-      <td>
-        <div style="display:flex;align-items:center;gap:9px">
-          <div style="width:28px;height:28px;border-radius:var(--r);background:rgba(61,217,196,.1);border:1px solid rgba(61,217,196,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:11px;color:var(--teal-bright);flex-shrink:0">${esc(c.nome[0])}</div>
-          <span>${esc(c.nome)}</span>
+
+  const lista=document.getElementById('clients-lista');
+  if(!state.clientes.length){
+    lista.innerHTML='<div class="panel"><div class="panel-body"><div class="empty">nenhum cliente cadastrado</div></div></div>';
+  }else{
+    lista.innerHTML=state.clientes.map(c=>{
+      const proj=state.projetos.find(p=>p.clienteId===c.id);
+      const isOpen=clienteExpandidoId===c.id;
+      const comentariosOrdenados=proj?[...proj.comentarios].sort((a,b)=>b.data.localeCompare(a.data)):[];
+      return`
+      <div class="client-card">
+        <div class="client-head" onclick="toggleCliente(${c.id})">
+          <div class="client-id">
+            <div class="client-avatar">${esc(c.nome[0])}</div>
+            <div>
+              <div class="client-name">${esc(c.nome)}</div>
+              <div class="client-meta">${esc(c.empresa)||'sem empresa'} · ${esc(c.email)}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px" onclick="event.stopPropagation()">
+            ${statusTag(c.status)}
+            ${proj?statusTag(proj.status):''}
+            <span class="mono" style="color:var(--teal-bright);font-size:12px">${c.valor?fmt(c.valor):'—'}</span>
+            <button class="btn btn-info" onclick="abrirEdicaoCliente(${c.id})">editar</button>
+            <button class="btn btn-danger" onclick="delCliente(${c.id})">✕</button>
+            <span class="mono" style="color:var(--ink-faint);font-size:14px">${isOpen?'▾':'▸'}</span>
+          </div>
         </div>
-      </td>
-      <td style="color:var(--ink-dim)">${esc(c.empresa)||'—'}</td>
-      <td class="mono" style="font-size:11px"><div style="color:var(--ink-dim)">${esc(c.email)}</div><div style="color:var(--ink-faint)">${esc(c.tel)||''}</div></td>
-      <td>${statusTag(c.status)}</td>
-      <td class="mono" style="color:var(--teal-bright)">${c.valor?fmt(c.valor):'—'}</td>
-      <td>
-        <div style="display:flex;gap:4px">
-          <button class="btn btn-info" onclick="verObs(${c.id})">obs</button>
-          <button class="btn btn-danger" onclick="delCliente(${c.id})">✕</button>
+        <div class="client-body ${isOpen?'open':''}">
+          ${c.obs?`<div class="client-section"><div class="client-section-title">observações</div><div style="font-size:12.5px;color:var(--ink-dim)">${esc(c.obs)}</div></div>`:''}
+
+          <div class="client-section">
+            <div class="client-section-title">andamento do projeto</div>
+            ${proj?`
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span style="font-family:var(--mono);font-size:11px;color:var(--ink-faint)">status:</span>
+                <select class="status-sel" onchange="updateProjetoStatus(${proj.id},this.value)">
+                  <option ${proj.status==='em_andamento'?'selected':''} value="em_andamento">em andamento</option>
+                  <option ${proj.status==='concluido'?'selected':''} value="concluido">concluído</option>
+                  <option ${proj.status==='pausado'?'selected':''} value="pausado">pausado</option>
+                  <option ${proj.status==='atrasado'?'selected':''} value="atrasado">atrasado</option>
+                </select>
+                <button class="btn btn-danger" onclick="delProjeto(${proj.id})" style="margin-left:auto">excluir projeto</button>
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:12px">
+                <input type="text" id="comment-input-${proj.id}" placeholder="adicionar comentário sobre o andamento..." style="flex:1;padding:8px 10px;border:1px solid var(--navy-line);border-radius:var(--r);font-size:12.5px;background:var(--navy);color:var(--ink);outline:none;font-family:var(--sans)"/>
+                <button class="btn btn-teal" onclick="addComentario(${proj.id})" style="padding:8px 14px">add</button>
+              </div>
+              ${comentariosOrdenados.length?comentariosOrdenados.map(cm=>`
+                <div class="comment-item">
+                  <div class="comment-date mono">${cm.data} <span class="comment-author">${esc(cm.autor||'—')}</span></div>
+                  <div class="comment-text">${esc(cm.texto)}</div>
+                </div>`).join(''):'<div class="empty" style="padding:1rem 0">sem comentários ainda</div>'}
+            `:`<button class="btn btn-purple" onclick="criarProjetoParaCliente(${c.id})">iniciar acompanhamento de projeto</button>`}
+          </div>
+
+          <div class="client-section">
+            <div class="client-section-title">contrato</div>
+            <div class="contract-dl-box">
+              <div style="font-family:var(--mono);font-size:12px;color:var(--ink-dim)">modelo padrão de prestação de serviços</div>
+              <button class="btn btn-purple" onclick="baixarContrato()">baixar pdf</button>
+            </div>
+          </div>
         </div>
-      </td>
-    </tr>`).join('');
+      </div>`;
+    }).join('');
+  }
+
+  // Contratos recebidos pelo site (ainda não convertidos em clientes, ou no funil)
+  const pendList=document.getElementById('contracts-pending-lista');
+  const pendentes=state.contratos.filter(c=>c.status!=='convertido'||!state.clientes.some(cl=>cl.email===c.email));
+  if(!state.contratos.length){
+    pendList.innerHTML='<div class="empty">nenhum contrato recebido</div>';
+  }else{
+    pendList.innerHTML=state.contratos.map(c=>`
+      <div class="entity-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:34px;height:34px;border-radius:var(--r);background:rgba(155,127,232,.1);border:1px solid rgba(155,127,232,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--purple-bright);flex-shrink:0">${esc(c.nome[0])}</div>
+            <div>
+              <div class="ename">${esc(c.nome)}</div>
+              <div class="emeta">${esc(c.email)} · ${esc(c.tel)} · ${c.data}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            ${statusTag(c.status)}
+            <select class="status-sel" onchange="updateContratoStatus(${c.id},this.value)">
+              <option ${c.status==='novo'?'selected':''} value="novo">novo</option>
+              <option ${c.status==='em contato'?'selected':''} value="em contato">em contato</option>
+              <option ${c.status==='convertido'?'selected':''} value="convertido">convertido</option>
+              <option ${c.status==='recusado'?'selected':''} value="recusado">recusado</option>
+            </select>
+            <button class="btn btn-danger" onclick="delContrato(${c.id})">✕</button>
+          </div>
+        </div>
+        <span class="eserv">${esc(c.servico)} · ${esc(c.orcamento)}</span>
+        <div class="emsg">"${esc(c.msg)}"</div>
+        ${c.pagamento?`
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--navy-line);display:flex;gap:18px;flex-wrap:wrap" class="mono">
+            <div><span style="color:var(--ink-faint);font-size:10.5px">forma</span><br><span style="color:var(--ink);font-size:12px">${pagamentoLabel(c.pagamento.tipo)}</span></div>
+            <div><span style="color:var(--ink-faint);font-size:10.5px">recebido agora</span><br><span style="color:var(--teal-bright);font-size:12px">${fmt(c.pagamento.entrada)}</span></div>
+            ${c.pagamento.final?`<div><span style="color:var(--ink-faint);font-size:10.5px">a receber no final</span><br><span style="color:var(--amber);font-size:12px">${fmt(c.pagamento.final)}</span></div>`:''}
+            ${c.fechadoPor?`<div><span style="color:var(--ink-faint);font-size:10.5px">fechado por</span><br><span style="color:var(--purple-bright);font-size:12px">${esc(c.fechadoPor)}</span></div>`:''}
+          </div>
+        `:(c.status==='convertido'?`<button class="btn btn-purple" style="margin-top:12px" onclick="abrirFechamento(${c.id})">definir pagamento</button>`:'')}
+      </div>`).join('');
+  }
 }
+
+function toggleCliente(id){
+  clienteExpandidoId=(clienteExpandidoId===id)?null:id;
+  renderClientes();
+}
+
+function criarProjetoParaCliente(clienteId){
+  state.projetos.push({id:state.nextId++,clienteId,status:'em_andamento',comentarios:[]});
+  renderAll();
+  saveState();
+}
+
 function addCliente(){
   const nome=document.getElementById('cli-nome').value.trim();
   const email=document.getElementById('cli-email').value.trim();
@@ -802,101 +901,87 @@ function addCliente(){
   renderAll();
   saveState();
 }
-function delCliente(id){if(!confirm('Remover cliente?'))return;state.clientes=state.clientes.filter(c=>c.id!==id);renderAll();saveState();}
-function verObs(id){const c=state.clientes.find(x=>x.id===id);alert(c?(c.obs||'Nenhuma observação.'): 'Não encontrado.');}
-
-function renderProjetos(){
-  const lista=document.getElementById('projects-lista');
-  if(!state.projetos.length){lista.innerHTML='<div class="empty">nenhum projeto em acompanhamento</div>';return;}
-  lista.innerHTML=state.projetos.map(p=>{
-    const cli=state.clientes.find(c=>c.id===p.clienteId);
-    const nomeCliente=cli?cli.nome:'(cliente removido)';
-    const empresa=cli?cli.empresa:'';
-    const comentariosOrdenados=[...p.comentarios].sort((a,b)=>b.data.localeCompare(a.data));
-    return`
-    <div class="progress-card">
-      <div class="progress-head">
-        <div>
-          <div class="ename">${esc(nomeCliente)}</div>
-          <div class="emeta">${esc(empresa)}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          ${statusTag(p.status)}
-          <select class="status-sel" onchange="updateProjetoStatus(${p.id},this.value)">
-            <option ${p.status==='em_andamento'?'selected':''} value="em_andamento">em andamento</option>
-            <option ${p.status==='concluido'?'selected':''} value="concluido">concluído</option>
-            <option ${p.status==='pausado'?'selected':''} value="pausado">pausado</option>
-            <option ${p.status==='atrasado'?'selected':''} value="atrasado">atrasado</option>
-          </select>
-        </div>
-      </div>
-      <div class="progress-body">
-        <div style="display:flex;gap:8px;margin-bottom:12px">
-          <input type="text" id="comment-input-${p.id}" placeholder="adicionar comentário sobre o andamento..." style="flex:1;padding:8px 10px;border:1px solid var(--navy-line);border-radius:var(--r);font-size:12.5px;background:var(--navy);color:var(--ink);outline:none;font-family:var(--sans)"/>
-          <button class="btn btn-teal" onclick="addComentario(${p.id})" style="padding:8px 14px">add</button>
-        </div>
-        ${comentariosOrdenados.length?comentariosOrdenados.map(c=>`
-          <div class="comment-item">
-            <div class="comment-date mono">${c.data}</div>
-            <div class="comment-text">${esc(c.texto)}</div>
-          </div>`).join(''):'<div class="empty" style="padding:1rem 0">sem comentários ainda</div>'}
-      </div>
-    </div>`;
-  }).join('');
+function delCliente(id){
+  if(!confirm('Remover cliente? Isso também remove o projeto/andamento ligado a ele.'))return;
+  state.clientes=state.clientes.filter(c=>c.id!==id);
+  state.projetos=state.projetos.filter(p=>p.clienteId!==id);
+  renderAll();
+  saveState();
+}
+function delProjeto(id){
+  if(!confirm('Excluir o acompanhamento deste projeto? O cliente continua cadastrado.'))return;
+  state.projetos=state.projetos.filter(p=>p.id!==id);
+  renderAll();
+  saveState();
 }
 
 function updateProjetoStatus(id,status){
   const p=state.projetos.find(x=>x.id===id);
   if(p){p.status=status;renderAll();saveState();}
 }
-
 function addComentario(projetoId){
   const input=document.getElementById('comment-input-'+projetoId);
   const texto=input.value.trim();
   if(!texto)return;
   const p=state.projetos.find(x=>x.id===projetoId);
   if(!p)return;
-  p.comentarios.push({data:new Date().toISOString().split('T')[0],texto});
-  input.value='';
+  p.comentarios.push({data:new Date().toISOString().split('T')[0],autor:currentAdmin?currentAdmin.nome:'—',texto});
   renderAll();
   saveState();
 }
 
-function renderContratos(){
-  const lista=document.getElementById('contracts-lista');
-  if(!state.contratos.length){lista.innerHTML='<div class="empty">nenhum contrato recebido</div>';return;}
-  lista.innerHTML=state.contratos.map(c=>`
-    <div class="entity-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:38px;height:38px;border-radius:var(--r);background:rgba(155,127,232,.1);border:1px solid rgba(155,127,232,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14px;color:var(--purple-bright);flex-shrink:0">${esc(c.nome[0])}</div>
-          <div>
-            <div class="ename">${esc(c.nome)}</div>
-            <div class="emeta">${esc(c.email)} · ${esc(c.tel)} · ${c.data}</div>
-          </div>
+// ── EDIÇÃO DE CLIENTE (modal) ────────────────────────────
+function abrirEdicaoCliente(id){
+  const c=state.clientes.find(x=>x.id===id);
+  if(!c)return;
+  const root=document.getElementById('modal-root');
+  root.innerHTML=`
+    <div class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-head">
+          <div class="modal-title">editar cliente — ${esc(c.nome)}</div>
+          <button class="modal-close" onclick="fecharModal()">✕</button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          ${statusTag(c.status)}
-          <select class="status-sel" onchange="updateContratoStatus(${c.id},this.value)">
-            <option ${c.status==='novo'?'selected':''} value="novo">novo</option>
-            <option ${c.status==='em contato'?'selected':''} value="em contato">em contato</option>
-            <option ${c.status==='convertido'?'selected':''} value="convertido">convertido</option>
-            <option ${c.status==='recusado'?'selected':''} value="recusado">recusado</option>
-          </select>
-          <button class="btn btn-danger" onclick="delContrato(${c.id})">✕</button>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="fg"><label>nome</label><input type="text" id="edit-nome" value="${esc(c.nome)}"/></div>
+            <div class="fg"><label>empresa</label><input type="text" id="edit-empresa" value="${esc(c.empresa)}"/></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>email</label><input type="email" id="edit-email" value="${esc(c.email)}"/></div>
+            <div class="fg"><label>telefone</label><input type="text" id="edit-tel" value="${esc(c.tel)}"/></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>status</label>
+              <select id="edit-status">
+                <option ${c.status==='ativo'?'selected':''} value="ativo">ativo</option>
+                <option ${c.status==='prospect'?'selected':''} value="prospect">prospect</option>
+                <option ${c.status==='inativo'?'selected':''} value="inativo">inativo</option>
+              </select>
+            </div>
+            <div class="fg"><label>valor_contrato</label><input type="number" id="edit-valor" value="${c.valor||0}" min="0" step="0.01"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:16px"><label>observacoes</label><textarea id="edit-obs">${esc(c.obs)}</textarea></div>
+          <button class="btn btn-teal" style="width:100%;justify-content:center" onclick="salvarEdicaoCliente(${id})">salvar alterações</button>
         </div>
       </div>
-      <span class="eserv">${esc(c.servico)} · ${esc(c.orcamento)}</span>
-      <div class="emsg">"${esc(c.msg)}"</div>
-      ${c.pagamento?`
-        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--navy-line);display:flex;gap:18px;flex-wrap:wrap" class="mono">
-          <div><span style="color:var(--ink-faint);font-size:10.5px">forma</span><br><span style="color:var(--ink);font-size:12px">${pagamentoLabel(c.pagamento.tipo)}</span></div>
-          <div><span style="color:var(--ink-faint);font-size:10.5px">recebido agora</span><br><span style="color:var(--teal-bright);font-size:12px">${fmt(c.pagamento.entrada)}</span></div>
-          ${c.pagamento.final?`<div><span style="color:var(--ink-faint);font-size:10.5px">a receber no final</span><br><span style="color:var(--amber);font-size:12px">${fmt(c.pagamento.final)}</span></div>`:''}
-        </div>
-      `:(c.status==='convertido'?`<button class="btn btn-purple" style="margin-top:12px" onclick="abrirFechamento(${c.id})">definir pagamento</button>`:'')}
-    </div>`).join('');
+    </div>`;
 }
+function salvarEdicaoCliente(id){
+  const c=state.clientes.find(x=>x.id===id);
+  if(!c)return;
+  c.nome=document.getElementById('edit-nome').value.trim()||c.nome;
+  c.empresa=document.getElementById('edit-empresa').value.trim();
+  c.email=document.getElementById('edit-email').value.trim()||c.email;
+  c.tel=document.getElementById('edit-tel').value.trim();
+  c.status=document.getElementById('edit-status').value;
+  c.valor=parseFloat(document.getElementById('edit-valor').value)||0;
+  c.obs=document.getElementById('edit-obs').value.trim();
+  fecharModal();
+  renderAll();
+  saveState();
+}
+function fecharModal(){document.getElementById('modal-root').innerHTML='';pagamentoSelecionado=null;}
 
 function pagamentoLabel(tipo){
   const map={'100-inicio':'100% no início','100-fim':'100% na entrega final','50-50':'50% início + 50% na entrega','custom':'personalizado'};
@@ -915,7 +1000,8 @@ function updateContratoStatus(id,status){
 }
 function delContrato(id){if(!confirm('Remover contrato?'))return;state.contratos=state.contratos.filter(c=>c.id!==id);renderAll();saveState();}
 
-// ── MODAL DE FECHAMENTO DE CONTRATO (pedido #4) ─────────
+let pagamentoSelecionado=null;
+
 function abrirFechamento(contratoId){
   const c=state.contratos.find(x=>x.id===contratoId);
   if(!c)return;
@@ -962,27 +1048,28 @@ function abrirFechamento(contratoId){
             <label>data_prevista_entrega</label>
             <input type="date" id="fech-data-entrega"/>
           </div>
+          <div class="fg" style="margin-bottom:16px">
+            <label>fechado_por</label>
+            <input type="text" value="${currentAdmin?esc(currentAdmin.nome):'—'}" readonly style="opacity:.7"/>
+          </div>
           <button class="btn btn-teal" style="width:100%;justify-content:center" onclick="confirmarFechamento(${c.id})">confirmar fechamento</button>
         </div>
       </div>
     </div>`;
 }
 
-let pagamentoSelecionado=null;
 function selecionarPagamento(tipo){
   pagamentoSelecionado=tipo;
   document.querySelectorAll('.pay-option').forEach(el=>el.classList.toggle('selected',el.dataset.tipo===tipo));
   document.getElementById('fech-custom-fields').style.display=tipo==='custom'?'grid':'none';
   atualizarPreviewPagamento();
 }
-
 function syncCustomFinal(){
   const total=parseFloat(document.getElementById('fech-total').value)||0;
   const entrada=parseFloat(document.getElementById('fech-custom-entrada').value)||0;
   document.getElementById('fech-custom-final').value=Math.max(total-entrada,0).toFixed(2);
   atualizarPreviewPagamento();
 }
-
 function atualizarPreviewPagamento(){
   const total=parseFloat(document.getElementById('fech-total').value)||0;
   const preview=document.getElementById('fech-preview');
@@ -998,8 +1085,6 @@ function atualizarPreviewPagamento(){
   preview.innerHTML=`recebe agora: <span style="color:var(--teal-bright)">${fmt(entrada)}</span> &nbsp;·&nbsp; recebe no final: <span style="color:var(--amber)">${fmt(final)}</span>`;
 }
 
-function fecharModal(){document.getElementById('modal-root').innerHTML='';pagamentoSelecionado=null;}
-
 function confirmarFechamento(contratoId){
   const c=state.contratos.find(x=>x.id===contratoId);
   if(!c)return;
@@ -1007,7 +1092,7 @@ function confirmarFechamento(contratoId){
   const dataEntrega=document.getElementById('fech-data-entrega').value;
   if(!total||!pagamentoSelecionado){alert('Preencha o valor total e escolha a forma de pagamento.');return;}
   if(pagamentoSelecionado!=='100-fim' && !dataEntrega && pagamentoSelecionado!=='100-inicio'){
-    if(!confirm('Sem data de entrega definida, o valor final não vai subir automaticamente para o caixa. Continuar assim?'))return;
+    if(!confirm('Sem data de entrega definida, o valor final fica pendente sem previsão. Continuar assim?'))return;
   }
   let entrada=0,final=0;
   if(pagamentoSelecionado==='100-inicio'){entrada=total;final=0;}
@@ -1017,23 +1102,23 @@ function confirmarFechamento(contratoId){
     entrada=parseFloat(document.getElementById('fech-custom-entrada').value)||0;
     final=Math.max(total-entrada,0);
   }
+  const autorNome=currentAdmin?currentAdmin.nome:'—';
   c.pagamento={tipo:pagamentoSelecionado,entrada,final,dataEntrega};
+  c.fechadoPor=autorNome;
 
-  // Lança a entrada imediatamente no caixa
   if(entrada>0){
     state.financas.unshift({
       id:state.nextId++,tipo:'entrada',valor:entrada,
-      desc:'Fechamento — '+c.servico+' ('+c.nome+')',
+      desc:'Fechamento — '+c.servico+' ('+c.nome+') · '+autorNome,
       data:new Date().toISOString().split('T')[0],cat:'projeto'
     });
   }
-  // Lança o valor final como "a receber", ligado à data de entrega
   if(final>0){
     let cliente=state.clientes.find(cl=>cl.email===c.email);
     if(!cliente){
-      cliente={id:state.nextId++,nome:c.nome,empresa:'',email:c.email,tel:c.tel,status:'ativo',valor:total,obs:'Convertido via contrato'};
+      cliente={id:state.nextId++,nome:c.nome,empresa:'',email:c.email,tel:c.tel,status:'ativo',valor:total,obs:'Convertido via contrato · fechado por '+autorNome};
       state.clientes.push(cliente);
-      state.projetos.push({id:state.nextId++,clienteId:cliente.id,status:'em_andamento',comentarios:[]});
+      state.projetos.push({id:state.nextId++,clienteId:cliente.id,status:'em_andamento',comentarios:[{data:new Date().toISOString().split('T')[0],autor:autorNome,texto:'Contrato fechado — projeto iniciado.'}]});
     }
     state.receber.push({
       id:state.nextId++,clienteId:cliente.id,
@@ -1054,7 +1139,7 @@ window.vivaGestao={
     const novo={
       id:state.nextId++,nome:d.nome||'',email:d.email||'',tel:d.tel||'',
       servico:d.servico||'',orcamento:d.orcamento||'—',msg:d.msg||'',
-      data:new Date().toISOString().split('T')[0],status:'novo',pagamento:null
+      data:new Date().toISOString().split('T')[0],status:'novo',pagamento:null,fechadoPor:null
     };
     state.contratos.unshift(novo);
     renderAll();
