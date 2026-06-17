@@ -548,7 +548,6 @@ async function loadState(){
     setSyncBadge('error');
   }
   firstLoadDone=true;
-  checkReceberAutoUpdate();
   renderAll();
 }
 
@@ -578,25 +577,15 @@ function saveState(immediate){
   saveTimeout=setTimeout(doSave,500);
 }
 
-// Verifica valores "a receber" cuja data prevista já chegou: sobe automaticamente
-// para o caixa (financas), mas mantém editável/reversível.
-function checkReceberAutoUpdate(){
-  const hoje=new Date().toISOString().split('T')[0];
-  let mudou=false;
-  state.receber.forEach(r=>{
-    if(!r.recebido && r.dataPrevista<=hoje){
-      r.recebido=true;
-      r.recebidoAuto=true;
-      state.financas.unshift({
-        id:state.nextId++,tipo:'entrada',valor:r.valor,
-        desc:r.desc+' (auto: data prevista atingida)',
-        data:hoje,cat:'projeto',origemReceberId:r.id
-      });
-      mudou=true;
-    }
-  });
-  if(mudou)saveState();
+// Calcula quantos dias faltam (ou já passaram) até a data prevista
+function diasParaData(dataPrevista){
+  const hoje=new Date();
+  hoje.setHours(0,0,0,0);
+  const alvo=new Date(dataPrevista+'T00:00:00');
+  const diffMs=alvo-hoje;
+  return Math.round(diffMs/86400000);
 }
+
 
 function doLogin(){
   const u=document.getElementById('l-user').value.trim();
@@ -696,7 +685,7 @@ function renderFinanca(){
   const el=document.getElementById('fin-resumo-top');
   if(el)el.innerHTML=`<span style="color:var(--teal-bright)">+${fmt(ent)}</span> &nbsp;/&nbsp; <span style="color:var(--red)">-${fmt(sai)}</span> &nbsp;=&nbsp; <span style="color:var(--ink)">${fmt(ent-sai)}</span>`;
 
-  // Lista "a receber"
+  // Lista "a receber" — mostra contagem de dias até a data prevista (não soma ao saldo até confirmar)
   const recList=document.getElementById('receber-lista');
   const pendentes=state.receber.filter(r=>!r.recebido);
   if(!pendentes.length){
@@ -704,14 +693,18 @@ function renderFinanca(){
   }else{
     recList.innerHTML=pendentes.map(r=>{
       const cli=state.clientes.find(c=>c.id===r.clienteId);
-      const hoje=new Date().toISOString().split('T')[0];
-      const venceu=r.dataPrevista<=hoje;
+      const dias=diasParaData(r.dataPrevista);
+      let prazoTxt,prazoCor;
+      if(dias>1){prazoTxt=`faltam ${dias} dias`;prazoCor='var(--ink-faint)';}
+      else if(dias===1){prazoTxt='falta 1 dia';prazoCor='var(--amber)';}
+      else if(dias===0){prazoTxt='previsto para hoje';prazoCor='var(--amber)';}
+      else{prazoTxt=`vencido há ${Math.abs(dias)} dia${Math.abs(dias)!==1?'s':''}`;prazoCor='var(--red)';}
       return`
       <div class="fin-item">
         <div class="fin-icon p">⏳</div>
         <div class="fin-info">
           <div class="fin-desc">${esc(r.desc)}</div>
-          <div class="fin-sub">${cli?esc(cli.nome)+' · ':''}previsto: ${r.dataPrevista}${venceu?' · vencido':''}</div>
+          <div class="fin-sub">${cli?esc(cli.nome)+' · ':''}previsto: ${r.dataPrevista} · <span style="color:${prazoCor}">${prazoTxt}</span></div>
         </div>
         <span class="fin-val pendente">${fmt(r.valor)}</span>
         <button class="btn btn-info" onclick="confirmarRecebimento(${r.id})" title="Confirmar recebimento agora">✓</button>
